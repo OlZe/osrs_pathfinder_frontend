@@ -39,6 +39,7 @@ let endMarker = L.marker([3220.5, 3226.5], {
 endMarker.on('dragend', markerMoved);
 endMarker.addTo(runescape_map);
 
+let currentlyDrawnPath = null;
 drawPath(initPath);
 
 
@@ -64,7 +65,15 @@ function getCoordinatesFromMarker(marker) {
     );
 }
 
+function removeCurrentPath() {
+    if(currentlyDrawnPath) {
+        currentlyDrawnPath.remove();
+    }
+}
+
 function drawPath(path) {
+    removeCurrentPath();
     let pathCoords = path.map(movement => [movement.destination.y + 0.5, movement.destination.x + 0.5]);
-    L.polyline(pathCoords).addTo(runescape_map);
+    currentlyDrawnPath = L.polyline(pathCoords);
+    currentlyDrawnPath.addTo(runescape_map);
 }
