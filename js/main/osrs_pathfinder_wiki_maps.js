@@ -21,6 +21,7 @@ endMarker.on('dragend', markerMoved);
 endMarker.addTo(runescape_map);
 
 let currentlyDrawnPath = null;
+let currentlyOpenPopups = [];
 drawPath(initPath);
 
 
@@ -32,7 +33,7 @@ async function findPath(start, end) {
 
     const responseBody = await response.json();
     console.log(responseBody);
-    if(responseBody.pathFound) {
+    if (responseBody.pathFound) {
         drawPath(responseBody.path);
     }
 }
@@ -63,14 +64,52 @@ function getCoordinatesFromMarker(marker) {
 }
 
 function removeCurrentPath() {
-    if(currentlyDrawnPath) {
+    if (currentlyDrawnPath) {
         currentlyDrawnPath.remove();
     }
 }
 
 function drawPath(path) {
     removeCurrentPath();
+
     let pathCoords = path.map(movement => [movement.destination.y + 0.5, movement.destination.x + 0.5]);
     currentlyDrawnPath = L.polyline(pathCoords);
     currentlyDrawnPath.addTo(runescape_map);
+
+    drawHelperPopupsForPath(path);
+}
+
+function drawHelperPopupsForPath(path) {
+    // Close popups
+    currentlyOpenPopups.forEach(p => p.remove());
+
+    // Draw popups
+    path.forEach((movement, index) => {
+        // Don't draw popup "to" starting tile or on walking paths
+        if (index == 0 || movement.methodOfMovement.includes('walk')) {
+            return;
+        }
+
+        const destinationCoordinates = movement.destination;
+        const sourceCoordinates = path[index - 1].destination;
+
+        // If the popup is going from the starting tile, it could hide the start marker, move it up a little
+        if (index == 1) {
+            sourceCoordinates.y += 1;
+        }
+
+
+        const popupOptions = { closeButton: false, closeOnEscapeKey: false, autoClose: false, closeOnClick: false, maxWidth: 150, autoPan: false };
+        // Let popup show the teleport name, on click pan to destination
+        const popupContent = `<div 
+                onclick="runescape_map.panTo([${destinationCoordinates.y + 0.5},${destinationCoordinates.x + 0.5}], { animate: true })"
+                style="cursor: alias">
+                    ${movement.methodOfMovement}
+                </div>`;
+        const popup = L.popup(popupOptions)
+            .setContent(popupContent)
+            .setLatLng([sourceCoordinates.y + 0.5, sourceCoordinates.x + 0.5]);
+        currentlyOpenPopups.push(popup);
+        popup.openOn(runescape_map);
+    })
 }
