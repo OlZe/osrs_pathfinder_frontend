@@ -25,11 +25,15 @@ let currentlyOpenPopups = [];
 drawPath(initPath);
 
 
-
 async function findPath(start, end) {
-    const response = await fetch(`${API_URL}/path.json` +
-        `?from=${start.x},${start.y},${start.z}` +
-        `&to=${end.x},${end.y},${end.z}`);
+    const response = await fetch(`${API_URL}/path.json`, {
+        method: 'POST',
+        body: JSON.stringify({
+            from: start,
+            to: end,
+            blacklist: []
+        })
+    });
 
     const responseBody = await response.json();
     console.log(responseBody);
