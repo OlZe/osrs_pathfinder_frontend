@@ -66,21 +66,20 @@ class MapInteractor {
         this.initMapObjects();
     }
 
+    async fetchAndDrawPath() {
+        const startCoordinate = this.getCoordinatesFromMarker(this.startMarker);
+        const endCoordinate = this.getCoordinatesFromMarker(this.endMarker);
+        const pathResult = await this.pathFetcher.fetchPath(startCoordinate, endCoordinate, this.blacklist);
+        if (pathResult.pathFound) {
+            this.drawPath(pathResult.path)
+        }
+    }
+
     /**
      * @param {string} methodOfMovement 
      */
     addBlacklistItem(methodOfMovement) {
         this.blacklist.push(methodOfMovement);
-    }
-
-    async onMarkerMoved() {
-        const startCoordinate = this.getCoordinatesFromMarker(this.startMarker);
-        const endCoordinate = this.getCoordinatesFromMarker(this.endMarker);
-        console.log('Start: ', startCoordinate, 'End: ', endCoordinate);
-        const pathResult = await this.pathFetcher.fetchPath(startCoordinate, endCoordinate, this.blacklist);
-        if (pathResult.pathFound) {
-            this.drawPath(pathResult.path)
-        }
     }
 
     /**
@@ -127,7 +126,10 @@ class MapInteractor {
                         ${movement.methodOfMovement}
                         <button
                             title="Blacklist this teleport/transport"
-                            onclick="window.PathMapInteractor.addBlacklistItem('${movement.methodOfMovement}')">
+                            onclick="
+                                arguments[0].stopPropagation(); // Stop the click event from travelling past the button
+                                window.PathMapInteractor.addBlacklistItem('${movement.methodOfMovement}');
+                                window.PathMapInteractor.fetchAndDrawPath();">
                             &#9940;
                         </button>
                 </div>`;
@@ -162,14 +164,14 @@ class MapInteractor {
             alt: 'start point marker',
             draggable: true
         });
-        this.startMarker.on('dragend', this.onMarkerMoved.bind(this));
+        this.startMarker.on('dragend', this.fetchAndDrawPath.bind(this));
         this.startMarker.addTo(this.map);
         this.endMarker = L.marker([3220.5, 3226.5], {
             title: 'end point',
             alt: 'end point marker',
             draggable: true
         });
-        this.endMarker.on('dragend', this.onMarkerMoved.bind(this));
+        this.endMarker.on('dragend', this.fetchAndDrawPath.bind(this));
         this.endMarker.addTo(this.map);
         this.drawPath(INIT_PATH);
     }
