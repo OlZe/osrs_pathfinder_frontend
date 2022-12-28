@@ -25,13 +25,23 @@ let currentlyOpenPopups = [];
 drawPath(initPath);
 
 
+
+window.PathFinder = {
+    _blacklist: [],
+    addToBlacklist: function(methodOfMovement) {
+        window.PathFinder._blacklist.push(methodOfMovement);
+        console.log("New Blacklist Entry:", methodOfMovement);
+    }
+}
+
+
 async function findPath(start, end) {
     const response = await fetch(`${API_URL}/path.json`, {
         method: 'POST',
         body: JSON.stringify({
             from: start,
             to: end,
-            blacklist: []
+            blacklist: window.PathFinder._blacklist
         })
     });
 
@@ -105,11 +115,17 @@ function drawHelperPopupsForPath(path) {
 
         const popupOptions = { closeButton: false, closeOnEscapeKey: false, autoClose: false, closeOnClick: false, maxWidth: 150, autoPan: false };
         // Let popup show the teleport name, on click pan to destination
-        const popupContent = `<div 
+        const popupContent = 
+            `<div 
                 onclick="runescape_map.panTo([${destinationCoordinates.y + 0.5},${destinationCoordinates.x + 0.5}], { animate: true })"
                 style="cursor: alias">
                     ${movement.methodOfMovement}
-                </div>`;
+                    <button
+                        title="Blacklist this teleport/transport"
+                        onclick="window.PathFinder.addToBlacklist('${movement.methodOfMovement}')">
+                        &#9940;
+                    </button>
+            </div>`;
         const popup = L.popup(popupOptions)
             .setContent(popupContent)
             .setLatLng([sourceCoordinates.y + 0.5, sourceCoordinates.x + 0.5]);
