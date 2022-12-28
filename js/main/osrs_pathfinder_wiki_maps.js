@@ -46,29 +46,35 @@ class MapInteractor {
     // Path from 3221,3220,0 to 3226,3220,0
     static #INIT_PATH = JSON.parse(`[{"destination":{"x":3221,"y":3220,"z":0},"methodOfMovement":"start"},{"destination":{"x":3222,"y":3221,"z":0},"methodOfMovement":"walk north east"},{"destination":{"x":3223,"y":3221,"z":0},"methodOfMovement":"walk east"},{"destination":{"x":3224,"y":3221,"z":0},"methodOfMovement":"walk east"},{"destination":{"x":3225,"y":3220,"z":0},"methodOfMovement":"walk south east"},{"destination":{"x":3226,"y":3220,"z":0},"methodOfMovement":"walk east"}]`);
 
-
+    /**
+     * @param {PathFetcher} pathFetcher 
+     * @param {*} map The Leaflet map object
+     */
     constructor(pathFetcher, map) {
+        /**@type {PathFetcher} */
         this.pathFetcher = pathFetcher;
         this.map = map;
-        this.startMarker = L.marker([3220.5, 3221.5], {
-            title: 'start point',
-            alt: 'start point marker',
-            draggable: true
-        });
-        this.startMarker.on('dragend', this.markerMoved.bind(this))
-        this.startMarker.addTo(this.map);
-        this.endMarker = L.marker([3220.5, 3226.5], {
-            title: 'end point',
-            alt: 'end point marker',
-            draggable: true
-        });
-        this.endMarker.on('dragend', this.markerMoved.bind(this));
-        this.endMarker.addTo(map);
         this.currentlyDrawnPath = null;
         this.currentlyOpenPopups = [];
-        this.drawPath(MapInteractor.#INIT_PATH);
+        this.startMarker = null;
+        this.endMarker = null;
+        this.init();
     }
-    
+
+    async onMarkerMoved() {
+        const startCoordinate = this.getCoordinatesFromMarker(this.startMarker);
+        const endCoordinate = this.getCoordinatesFromMarker(this.endMarker);
+        console.log('Start: ', startCoordinate, 'End: ', endCoordinate);
+        const pathResult = await this.pathFetcher.fetchPath(startCoordinate, endCoordinate);
+        if(pathResult.pathFound)
+        {
+            this.drawPath(pathResult.path)
+        }
+    }
+
+    /**
+     * @param {PathResultMovement[]} path 
+     */
     drawPath(path) {
         if (this.currentlyDrawnPath) {
             this.currentlyDrawnPath.remove();
@@ -79,6 +85,9 @@ class MapInteractor {
         this.drawHelperPopupsForPath(path);
     }
     
+    /**
+     * @param {PathResultMovement[]} path 
+     */
     drawHelperPopupsForPath(path) {
         // Close popups
         this.currentlyOpenPopups.forEach(p => p.remove());
@@ -118,17 +127,6 @@ class MapInteractor {
             this.currentlyOpenPopups.push(popup);
         })
     }
-
-    async markerMoved() {
-        const startCoordinate = this.getCoordinatesFromMarker(this.startMarker);
-        const endCoordinate = this.getCoordinatesFromMarker(this.endMarker);
-        console.log('Start: ', startCoordinate, 'End: ', endCoordinate);
-        const pathResult = await this.pathFetcher.fetchPath(startCoordinate, endCoordinate);
-        if(pathResult.pathFound)
-        {
-            this.drawPath(pathResult.path)
-        }
-    }
     
     /**
      * Extracts integer coordinates out of a marker
@@ -142,6 +140,24 @@ class MapInteractor {
             Math.floor(latlng.lat),
             0
         );
+    }
+        
+    init() {
+        this.startMarker = L.marker([3220.5, 3221.5], {
+            title: 'start point',
+            alt: 'start point marker',
+            draggable: true
+        });
+        this.startMarker.on('dragend', this.onMarkerMoved.bind(this));
+        this.startMarker.addTo(this.map);
+        this.endMarker = L.marker([3220.5, 3226.5], {
+            title: 'end point',
+            alt: 'end point marker',
+            draggable: true
+        });
+        this.endMarker.on('dragend', this.onMarkerMoved.bind(this));
+        this.endMarker.addTo(this.map);
+        this.drawPath(MapInteractor.#INIT_PATH);
     }
     
 }
