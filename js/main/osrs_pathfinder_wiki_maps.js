@@ -59,10 +59,6 @@ class MapInteractor {
         this.endMarker = null;
         /**@type {string[]} */
         this.blacklist = [];
-
-        // Add this object to global scope so the popup blacklist button can call this object's function
-        window.PathMapInteractor = this;
-
         this.initMapObjects();
     }
 
@@ -118,25 +114,27 @@ class MapInteractor {
             }
 
             const popupOptions = { closeButton: false, closeOnEscapeKey: false, autoClose: false, closeOnClick: false, maxWidth: 150, autoPan: false };
-            // Let popup show the teleport name, on click pan to destination
-            const popupContent =
-                `<div 
-                    onclick="runescape_map.panTo([${destinationCoordinates.y + 0.5},${destinationCoordinates.x + 0.5}], { animate: true })"
-                    style="cursor: alias">
-                        ${movement.methodOfMovement}
-                        <button
-                            title="Blacklist this teleport/transport"
-                            onclick="
-                                arguments[0].stopPropagation(); // Stop the click event from travelling past the button
-                                window.PathMapInteractor.addBlacklistItem('${movement.methodOfMovement}');
-                                window.PathMapInteractor.fetchAndDrawPath();">
-                            &#9940;
-                        </button>
-                </div>`;
+            // Let popup show the movement name, on click pan to destination
+            const popupDiv = document.createElement("div");
+            popupDiv.setAttribute("style", "cursor: alias");
+            popupDiv.onclick = (event) => {
+                this.map.panTo([destinationCoordinates.y + 0.5, destinationCoordinates.x + 0.5], { animate: true });
+            };
+            popupDiv.appendChild(document.createTextNode(movement.methodOfMovement));
+            const popupBlacklistButton = document.createElement("button");
+            popupBlacklistButton.innerText = "⛔";
+            popupBlacklistButton.setAttribute("title", "Blacklist this teleport/transport");
+            popupBlacklistButton.onclick = (event) => {
+                event.stopPropagation(); // Stop the click event from reaching the underlying popup
+                this.addBlacklistItem(movement.methodOfMovement);
+                this.fetchAndDrawPath();
+            };
+            popupDiv.appendChild(popupBlacklistButton);
+
             const popup = L.popup(popupOptions)
-                .setContent(popupContent)
+                .setContent(popupDiv)
                 .setLatLng([sourceCoordinates.y + 0.5, sourceCoordinates.x + 0.5]);
-            popup.openOn(runescape_map);
+            popup.openOn(this.map);
             this.currentlyOpenPopups.push(popup);
         })
     }
