@@ -82,15 +82,14 @@ class MapInteractor {
      * @param {PathResultMovement[]} path 
      */
     drawPath(path) {
-        // Remove old drawn path
-        this.currentlyDrawnLines.forEach(l => l.remove());
-        this.currentlyDrawnLines = [];
-        // Remove open popups
-        this.currentlyOpenPopups.forEach(p => p.remove());
-        this.currentlyOpenPopups = [];
+        this.clearPath();
 
         const walkingPathColor = "#1100ff";
         const transportPathColor = "#00aeff";
+
+        if(path.length == 0) {
+            return;
+        }
 
         let previousCoordinate = path[0].destination;
         path.slice(1).forEach(movement => {
@@ -102,36 +101,53 @@ class MapInteractor {
             line.addTo(this.map);
 
             if (!isWalking) {
-                // Draw a helper popup
-                const popupOptions = { closeButton: false, closeOnEscapeKey: false, autoClose: false, closeOnClick: false, maxWidth: 150, autoPan: false };
-                // Let popup show the movement name, on click pan to destination
-                const popupDiv = document.createElement("div");
-                popupDiv.setAttribute("style", "cursor: alias");
-                popupDiv.onclick = (event) => {
-                    this.map.panTo(this.convertCoordinateToLatLng(movement.destination), { animate: true });
-                };
-                popupDiv.appendChild(document.createTextNode(movement.methodOfMovement));
-                const popupBlacklistButton = document.createElement("button");
-                popupBlacklistButton.innerText = "⛔";
-                popupBlacklistButton.setAttribute("title", "Blacklist this teleport/transport");
-                popupBlacklistButton.onclick = (event) => {
-                    event.stopPropagation(); // Stop the click event from reaching the underlying popup
-                    this.addBlacklistItem(movement.methodOfMovement);
-                    this.fetchAndDrawPath();
-                };
-                popupDiv.appendChild(popupBlacklistButton);
-
-                const popup = L.popup(popupOptions)
-                    .setContent(popupDiv)
-                    .setLatLng(this.convertCoordinateToLatLng(previousCoordinate));
-                popup.openOn(this.map);
-                this.currentlyOpenPopups.push(popup);
+                this.openMovementPopup(previousCoordinate, movement.destination, movement.methodOfMovement);
             }
             previousCoordinate = movement.destination;
         });
+
     }
 
-    
+    /**
+     * @param {Coordinate} from 
+     * @param {Coordinate} to 
+     * @param {string} methodOfMovement 
+     */
+    openMovementPopup(from, to, methodOfMovement) {
+        // <div onclick=panMap> methodOfMovement <button onclick=blacklist></button></div>
+        const popupDiv = document.createElement("div");
+        popupDiv.setAttribute("style", "cursor: alias");
+        popupDiv.onclick = (event) => {
+            this.map.panTo(this.convertCoordinateToLatLng(to), { animate: true });
+        };
+        popupDiv.appendChild(document.createTextNode(methodOfMovement));
+        const popupBlacklistButton = document.createElement("button");
+        popupBlacklistButton.innerText = "⛔";
+        popupBlacklistButton.setAttribute("title", "Blacklist this teleport/transport");
+        popupBlacklistButton.onclick = (event) => {
+            event.stopPropagation(); // Stop the click event from reaching the underlying popup
+            this.addBlacklistItem(methodOfMovement);
+            this.fetchAndDrawPath();
+        };
+        popupDiv.appendChild(popupBlacklistButton);
+
+        const popupOptions = { closeButton: false, closeOnEscapeKey: false, autoClose: false, closeOnClick: false, maxWidth: 150, autoPan: false };
+        const popup = L.popup(popupOptions)
+            .setContent(popupDiv)
+            .setLatLng(this.convertCoordinateToLatLng(from));
+        popup.openOn(this.map);
+        this.currentlyOpenPopups.push(popup);
+    }
+
+    clearPath() {
+        // Remove old drawn path
+        this.currentlyDrawnLines.forEach(l => l.remove());
+        this.currentlyDrawnLines = [];
+        // Remove open popups
+        this.currentlyOpenPopups.forEach(p => p.remove());
+        this.currentlyOpenPopups = [];
+    }
+
     /**
      * @param {Coordinate} coord 
      * @returns Leaflet LatLng
