@@ -53,7 +53,7 @@ class MapInteractor {
         /**@type {PathFetcher} */
         this.pathFetcher = pathFetcher;
         this.map = map;
-        this.currentlyDrawnPath = null;
+        this.currentlyDrawnLines = [];
         this.currentlyOpenPopups = [];
         this.startMarker = null;
         this.endMarker = null;
@@ -82,61 +82,53 @@ class MapInteractor {
      * @param {PathResultMovement[]} path 
      */
     drawPath(path) {
-        if (this.currentlyDrawnPath) {
-            this.currentlyDrawnPath.remove();
-        }
-        const pathCoords = path.map(movement => [movement.destination.y + 0.5, movement.destination.x + 0.5]);
-        this.currentlyDrawnPath = L.polyline(pathCoords);
-        this.currentlyDrawnPath.addTo(this.map);
-        this.drawHelperPopupsForPath(path);
-    }
-
-    /**
-     * @param {PathResultMovement[]} path 
-     */
-    drawHelperPopupsForPath(path) {
-        // Close popups
+        // Remove old drawn path
+        this.currentlyDrawnLines.forEach(l => l.remove());
+        this.currentlyDrawnLines = [];
+        // Remove open popups
         this.currentlyOpenPopups.forEach(p => p.remove());
+        this.currentlyOpenPopups = [];
 
-        // Draw popups
-        path.forEach((movement, index) => {
-            // Don't draw popup "to" starting tile or on walking paths
-            if (index == 0 || movement.methodOfMovement.includes('walk')) {
-                return;
+        const walkingPathColor = "#1100ff";
+        const transportPathColor = "#00aeff";
+
+        let previousCoordinate = path[0].destination;
+        path.slice(1).forEach(movement => {
+            const isWalking = movement.methodOfMovement.includes("walk");
+            const lineColor = isWalking ? walkingPathColor : transportPathColor;
+            const lineLatLngs = [previousCoordinate, movement.destination].map(c => [c.y + 0.5, c.x + 0.5]);
+            const line = L.polyline(lineLatLngs, { color: lineColor });
+            this.currentlyDrawnLines.push(line);
+            line.addTo(this.map);
+
+            if (!isWalking) {
+                // Draw a helper popup
+                const popupOptions = { closeButton: false, closeOnEscapeKey: false, autoClose: false, closeOnClick: false, maxWidth: 150, autoPan: false };
+                // Let popup show the movement name, on click pan to destination
+                const popupDiv = document.createElement("div");
+                popupDiv.setAttribute("style", "cursor: alias");
+                popupDiv.onclick = (event) => {
+                    this.map.panTo([movement.destination.y + 0.5, movement.destination.x + 0.5], { animate: true });
+                };
+                popupDiv.appendChild(document.createTextNode(movement.methodOfMovement));
+                const popupBlacklistButton = document.createElement("button");
+                popupBlacklistButton.innerText = "⛔";
+                popupBlacklistButton.setAttribute("title", "Blacklist this teleport/transport");
+                popupBlacklistButton.onclick = (event) => {
+                    event.stopPropagation(); // Stop the click event from reaching the underlying popup
+                    this.addBlacklistItem(movement.methodOfMovement);
+                    this.fetchAndDrawPath();
+                };
+                popupDiv.appendChild(popupBlacklistButton);
+
+                const popup = L.popup(popupOptions)
+                    .setContent(popupDiv)
+                    .setLatLng([previousCoordinate.y + 0.5, previousCoordinate.x + 0.5]);
+                popup.openOn(this.map);
+                this.currentlyOpenPopups.push(popup);
             }
-
-            const destinationCoordinates = movement.destination;
-            const sourceCoordinates = path[index - 1].destination;
-
-            // If the popup is going from the starting tile, it could hide the start marker, move it up a little
-            if (index == 1) {
-                sourceCoordinates.y += 1;
-            }
-
-            const popupOptions = { closeButton: false, closeOnEscapeKey: false, autoClose: false, closeOnClick: false, maxWidth: 150, autoPan: false };
-            // Let popup show the movement name, on click pan to destination
-            const popupDiv = document.createElement("div");
-            popupDiv.setAttribute("style", "cursor: alias");
-            popupDiv.onclick = (event) => {
-                this.map.panTo([destinationCoordinates.y + 0.5, destinationCoordinates.x + 0.5], { animate: true });
-            };
-            popupDiv.appendChild(document.createTextNode(movement.methodOfMovement));
-            const popupBlacklistButton = document.createElement("button");
-            popupBlacklistButton.innerText = "⛔";
-            popupBlacklistButton.setAttribute("title", "Blacklist this teleport/transport");
-            popupBlacklistButton.onclick = (event) => {
-                event.stopPropagation(); // Stop the click event from reaching the underlying popup
-                this.addBlacklistItem(movement.methodOfMovement);
-                this.fetchAndDrawPath();
-            };
-            popupDiv.appendChild(popupBlacklistButton);
-
-            const popup = L.popup(popupOptions)
-                .setContent(popupDiv)
-                .setLatLng([sourceCoordinates.y + 0.5, sourceCoordinates.x + 0.5]);
-            popup.openOn(this.map);
-            this.currentlyOpenPopups.push(popup);
-        })
+            previousCoordinate = movement.destination;
+        });
     }
 
     /**
