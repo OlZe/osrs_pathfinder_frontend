@@ -96,7 +96,7 @@ class MapInteractor {
         path.slice(1).forEach(movement => {
             const isWalking = movement.methodOfMovement.includes("walk");
             const lineColor = isWalking ? walkingPathColor : transportPathColor;
-            const lineLatLngs = [previousCoordinate, movement.destination].map(c => [c.y + 0.5, c.x + 0.5]);
+            const lineLatLngs = [previousCoordinate, movement.destination].map(this.convertCoordinateToLatLng);
             const line = L.polyline(lineLatLngs, { color: lineColor });
             this.currentlyDrawnLines.push(line);
             line.addTo(this.map);
@@ -108,7 +108,7 @@ class MapInteractor {
                 const popupDiv = document.createElement("div");
                 popupDiv.setAttribute("style", "cursor: alias");
                 popupDiv.onclick = (event) => {
-                    this.map.panTo([movement.destination.y + 0.5, movement.destination.x + 0.5], { animate: true });
+                    this.map.panTo(this.convertCoordinateToLatLng(movement.destination), { animate: true });
                 };
                 popupDiv.appendChild(document.createTextNode(movement.methodOfMovement));
                 const popupBlacklistButton = document.createElement("button");
@@ -123,12 +123,21 @@ class MapInteractor {
 
                 const popup = L.popup(popupOptions)
                     .setContent(popupDiv)
-                    .setLatLng([previousCoordinate.y + 0.5, previousCoordinate.x + 0.5]);
+                    .setLatLng(this.convertCoordinateToLatLng(previousCoordinate));
                 popup.openOn(this.map);
                 this.currentlyOpenPopups.push(popup);
             }
             previousCoordinate = movement.destination;
         });
+    }
+
+    
+    /**
+     * @param {Coordinate} coord 
+     * @returns Leaflet LatLng
+     */
+    convertCoordinateToLatLng(coord) {
+        return [coord.y + 0.5, coord.x + 0.5];
     }
 
     /**
