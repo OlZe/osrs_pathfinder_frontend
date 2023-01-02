@@ -1,3 +1,4 @@
+import BlacklistManager from "./blacklist-manager.js";
 import DataFetcher from "./data-fetcher.js";
 import MapInteractor from "./map-interactor.js";
 
@@ -9,4 +10,5 @@ else {
     const dataFetcher = new DataFetcher();
     const mapInteractor = new MapInteractor(dataFetcher, runescape_map);
     mapInteractor.initMapObjects();
+    await new BlacklistManager(dataFetcher).fetchAndCreateBlacklist();
 }
