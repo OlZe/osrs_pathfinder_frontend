@@ -19,27 +19,27 @@ export default class MapInteractor {
         this.blacklist = [];
     }
 
-    async fetchAndDrawPath() {
-        const startCoordinate = this.getCoordinatesFromMarker(this.startMarker);
-        const endCoordinate = this.getCoordinatesFromMarker(this.endMarker);
+    async _fetchAndDrawPath() {
+        const startCoordinate = this._getCoordinatesFromMarker(this.startMarker);
+        const endCoordinate = this._getCoordinatesFromMarker(this.endMarker);
         const pathResult = await this.dataFetcher.fetchPath(startCoordinate, endCoordinate, this.blacklist);
         if (pathResult.pathFound) {
-            this.drawPath(pathResult.path);
+            this._drawPath(pathResult.path);
         }
     }
 
     /**
      * @param {string} methodOfMovement
      */
-    addBlacklistItem(methodOfMovement) {
+    _addBlacklistItem(methodOfMovement) {
         this.blacklist.push(methodOfMovement);
     }
 
     /**
      * @param {PathResultMovement[]} path
      */
-    drawPath(path) {
-        this.clearPath();
+    _drawPath(path) {
+        this._clearPath();
 
         const walkingPathColor = "#1100ff";
         const transportPathColor = "#00aeff";
@@ -52,13 +52,13 @@ export default class MapInteractor {
         path.slice(1).forEach(movement => {
             const isWalking = movement.methodOfMovement.includes("walk");
             const lineColor = isWalking ? walkingPathColor : transportPathColor;
-            const lineLatLngs = [previousCoordinate, movement.destination].map(this.convertCoordinateToLatLng);
+            const lineLatLngs = [previousCoordinate, movement.destination].map(this._convertCoordinateToLatLng);
             const line = L.polyline(lineLatLngs, { color: lineColor });
             this.currentlyDrawnLines.push(line);
             line.addTo(this.map);
 
             if (!isWalking) {
-                this.openMovementPopup(previousCoordinate, movement.destination, movement.methodOfMovement);
+                this._openMovementPopup(previousCoordinate, movement.destination, movement.methodOfMovement);
             }
             previousCoordinate = movement.destination;
         });
@@ -70,12 +70,12 @@ export default class MapInteractor {
      * @param {Coordinate} to
      * @param {string} methodOfMovement
      */
-    openMovementPopup(from, to, methodOfMovement) {
+    _openMovementPopup(from, to, methodOfMovement) {
         // <div onclick=panMap> methodOfMovement <button onclick=blacklist></button></div>
         const popupDiv = document.createElement("div");
         popupDiv.setAttribute("style", "cursor: alias");
         popupDiv.onclick = (event) => {
-            this.map.panTo(this.convertCoordinateToLatLng(to), { animate: true });
+            this.map.panTo(this._convertCoordinateToLatLng(to), { animate: true });
         };
         popupDiv.appendChild(document.createTextNode(methodOfMovement));
         const popupBlacklistButton = document.createElement("button");
@@ -83,20 +83,20 @@ export default class MapInteractor {
         popupBlacklistButton.setAttribute("title", "Blacklist this teleport/transport");
         popupBlacklistButton.onclick = (event) => {
             event.stopPropagation(); // Stop the click event from reaching the underlying popup
-            this.addBlacklistItem(methodOfMovement);
-            this.fetchAndDrawPath();
+            this._addBlacklistItem(methodOfMovement);
+            this._fetchAndDrawPath();
         };
         popupDiv.appendChild(popupBlacklistButton);
 
         const popupOptions = { closeButton: false, closeOnEscapeKey: false, autoClose: false, closeOnClick: false, maxWidth: 150, autoPan: false };
         const popup = L.popup(popupOptions)
             .setContent(popupDiv)
-            .setLatLng(this.convertCoordinateToLatLng(from));
+            .setLatLng(this._convertCoordinateToLatLng(from));
         popup.openOn(this.map);
         this.currentlyOpenPopups.push(popup);
     }
 
-    clearPath() {
+    _clearPath() {
         // Remove old drawn path
         this.currentlyDrawnLines.forEach(l => l.remove());
         this.currentlyDrawnLines = [];
@@ -109,7 +109,7 @@ export default class MapInteractor {
      * @param {Coordinate} coord
      * @returns Leaflet LatLng
      */
-    convertCoordinateToLatLng(coord) {
+    _convertCoordinateToLatLng(coord) {
         return [coord.y + 0.5, coord.x + 0.5];
     }
 
@@ -118,7 +118,7 @@ export default class MapInteractor {
      * @param {*} marker The Leaflet marker object
      * @returns {Coordinate}
      */
-    getCoordinatesFromMarker(marker) {
+    _getCoordinatesFromMarker(marker) {
         let latlng = marker.getLatLng();
         return new Coordinate(
             Math.floor(latlng.lng),
@@ -136,15 +136,15 @@ export default class MapInteractor {
             alt: 'start point marker',
             draggable: true
         });
-        this.startMarker.on('dragend', this.fetchAndDrawPath.bind(this));
+        this.startMarker.on('dragend', this._fetchAndDrawPath.bind(this));
         this.startMarker.addTo(this.map);
         this.endMarker = L.marker([3220.5, 3226.5], {
             title: 'end point',
             alt: 'end point marker',
             draggable: true
         });
-        this.endMarker.on('dragend', this.fetchAndDrawPath.bind(this));
+        this.endMarker.on('dragend', this._fetchAndDrawPath.bind(this));
         this.endMarker.addTo(this.map);
-        this.drawPath(INIT_PATH);
+        this._drawPath(INIT_PATH);
     }
 }

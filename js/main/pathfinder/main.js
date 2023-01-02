@@ -10,5 +10,5 @@ else {
     const dataFetcher = new DataFetcher();
     const mapInteractor = new MapInteractor(dataFetcher, runescape_map);
     mapInteractor.initMapObjects();
-    await new BlacklistManager(dataFetcher).fetchAndCreateBlacklist();
+    await new BlacklistManager(dataFetcher)._fetchAndCreateBlacklist();
 }
