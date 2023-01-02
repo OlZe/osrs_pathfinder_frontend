@@ -39,7 +39,7 @@ export default class BlacklistManager {
     }
 
 
-    async _fetchAndCreateBlacklist() {
+    async initBlacklist() {
         this.checkboxes = [];
         const blacklist = await this.dataFetcher.fetchAllTeleportsTransports();
         const form = document.createElement("form");

@@ -1,3 +1,4 @@
+import BlacklistManager from "./blacklist-manager.js";
 import Coordinate from "./coordinate.js";
 import DataFetcher from "./data-fetcher.js";
 
@@ -5,34 +6,29 @@ export default class MapInteractor {
 
     /**
      * @param {DataFetcher} dataFetcher
+     * @param {BlacklistManager} blacklistManager
      * @param {*} map The Leaflet map object
      */
-    constructor(dataFetcher, map) {
+    constructor(dataFetcher, blacklistManager, map) {
         /**@type {DataFetcher} */
         this.dataFetcher = dataFetcher;
+        /**@type {BlacklistManager} */
+        this.blacklistManager = blacklistManager;
         this.map = map;
         this.currentlyDrawnLines = [];
         this.currentlyOpenPopups = [];
         this.startMarker = null;
         this.endMarker = null;
-        /**@type {string[]} */
-        this.blacklist = [];
     }
 
     async _fetchAndDrawPath() {
         const startCoordinate = this._getCoordinatesFromMarker(this.startMarker);
         const endCoordinate = this._getCoordinatesFromMarker(this.endMarker);
-        const pathResult = await this.dataFetcher.fetchPath(startCoordinate, endCoordinate, this.blacklist);
+        const blacklist = this.blacklistManager.getBlacklist();
+        const pathResult = await this.dataFetcher.fetchPath(startCoordinate, endCoordinate, blacklist);
         if (pathResult.pathFound) {
             this._drawPath(pathResult.path);
         }
-    }
-
-    /**
-     * @param {string} methodOfMovement
-     */
-    _addBlacklistItem(methodOfMovement) {
-        this.blacklist.push(methodOfMovement);
     }
 
     /**
@@ -83,7 +79,7 @@ export default class MapInteractor {
         popupBlacklistButton.setAttribute("title", "Blacklist this teleport/transport");
         popupBlacklistButton.onclick = (event) => {
             event.stopPropagation(); // Stop the click event from reaching the underlying popup
-            this._addBlacklistItem(methodOfMovement);
+            this.blacklistManager.setBlacklist(methodOfMovement, true);
             this._fetchAndDrawPath();
         };
         popupDiv.appendChild(popupBlacklistButton);
