@@ -1,52 +1,10 @@
-/**
- * @typedef {Object} PathResultMovement
- * @property {string} methodOfMovement
- * @property {Coordinate} destination
- */
+import Coordinate from "./coordinate.js";
+import PathFetcher from "./pathfetcher.js";
 
-/**
- * @typedef {Object} PathResult
- * @property {boolean} pathFound
- * @property {number} computeTime
- * @property {PathResultMovement[]} path
- */
-
-class Coordinate {
-    constructor(x, y, z) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-    }
-}
-
-
-class PathFetcher {
-    static #API_URL = "http://localhost:8100"
+export default class MapInteractor {
 
     /**
-     * @param {Coordinate} start
-     * @param {Coordinate} end
-     * @param {string[]} blacklist
-     * @returns {Promise<PathResult>} path
-     */
-    async fetchPath(start, end, blacklist) {
-        const response = await fetch(`${PathFetcher.#API_URL}/path.json`, {
-            method: 'POST',
-            body: JSON.stringify({
-                from: start,
-                to: end,
-                blacklist: blacklist
-            })
-        });
-        return response.json();
-    }
-}
-
-
-class MapInteractor {
-
-    /**
-     * @param {PathFetcher} pathFetcher 
+     * @param {PathFetcher} pathFetcher
      * @param {*} map The Leaflet map object
      */
     constructor(pathFetcher, map) {
@@ -59,7 +17,6 @@ class MapInteractor {
         this.endMarker = null;
         /**@type {string[]} */
         this.blacklist = [];
-        this.initMapObjects();
     }
 
     async fetchAndDrawPath() {
@@ -67,19 +24,19 @@ class MapInteractor {
         const endCoordinate = this.getCoordinatesFromMarker(this.endMarker);
         const pathResult = await this.pathFetcher.fetchPath(startCoordinate, endCoordinate, this.blacklist);
         if (pathResult.pathFound) {
-            this.drawPath(pathResult.path)
+            this.drawPath(pathResult.path);
         }
     }
 
     /**
-     * @param {string} methodOfMovement 
+     * @param {string} methodOfMovement
      */
     addBlacklistItem(methodOfMovement) {
         this.blacklist.push(methodOfMovement);
     }
 
     /**
-     * @param {PathResultMovement[]} path 
+     * @param {PathResultMovement[]} path
      */
     drawPath(path) {
         this.clearPath();
@@ -87,7 +44,7 @@ class MapInteractor {
         const walkingPathColor = "#1100ff";
         const transportPathColor = "#00aeff";
 
-        if(path.length == 0) {
+        if (path.length == 0) {
             return;
         }
 
@@ -109,9 +66,9 @@ class MapInteractor {
     }
 
     /**
-     * @param {Coordinate} from 
-     * @param {Coordinate} to 
-     * @param {string} methodOfMovement 
+     * @param {Coordinate} from
+     * @param {Coordinate} to
+     * @param {string} methodOfMovement
      */
     openMovementPopup(from, to, methodOfMovement) {
         // <div onclick=panMap> methodOfMovement <button onclick=blacklist></button></div>
@@ -149,7 +106,7 @@ class MapInteractor {
     }
 
     /**
-     * @param {Coordinate} coord 
+     * @param {Coordinate} coord
      * @returns Leaflet LatLng
      */
     convertCoordinateToLatLng(coord) {
@@ -190,8 +147,4 @@ class MapInteractor {
         this.endMarker.addTo(this.map);
         this.drawPath(INIT_PATH);
     }
-
 }
-
-const pathFetcher = new PathFetcher();
-const mapInteractor = new MapInteractor(pathFetcher, runescape_map)
