@@ -13,7 +13,7 @@ import Coordinate from "./coordinate.js";
  * @property {PathResultMovement[]} path
  */
 
-export default class PathFetcher {
+export default class DataFetcher {
     static #API_URL = "http://localhost:8100"
 
     /**
@@ -23,7 +23,7 @@ export default class PathFetcher {
      * @returns {Promise<PathResult>} path
      */
     async fetchPath(start, end, blacklist) {
-        const response = await fetch(`${PathFetcher.#API_URL}/path.json`, {
+        const response = await fetch(`${DataFetcher.#API_URL}/path.json`, {
             method: 'POST',
             body: JSON.stringify({
                 from: start,
@@ -31,6 +31,14 @@ export default class PathFetcher {
                 blacklist: blacklist
             })
         });
+        return response.json();
+    }
+
+    /**
+     * @returns {string[]} A list of all teleports and transports
+     */
+    async fetchAllTeleportsTransports() {
+        const response = await fetch(`${DataFetcher.#API_URL}/transports-teleports.json`);
         return response.json();
     }
 }

@@ -1,12 +1,12 @@
-import PathFetcher from "./pathfetcher.js";
-import MapInteractor from "./mapinteractor.js";
+import DataFetcher from "./data-fetcher.js";
+import MapInteractor from "./map-interactor.js";
 
 
 if(!L || !runescape_map) {
     throw("Global variables L or runescape_map are missing");
 }
 else {
-    const pathFetcher = new PathFetcher();
-    const mapInteractor = new MapInteractor(pathFetcher, runescape_map);
+    const dataFetcher = new DataFetcher();
+    const mapInteractor = new MapInteractor(dataFetcher, runescape_map);
     mapInteractor.initMapObjects();
 }

@@ -1,15 +1,15 @@
 import Coordinate from "./coordinate.js";
-import PathFetcher from "./pathfetcher.js";
+import DataFetcher from "./data-fetcher.js";
 
 export default class MapInteractor {
 
     /**
-     * @param {PathFetcher} pathFetcher
+     * @param {DataFetcher} dataFetcher
      * @param {*} map The Leaflet map object
      */
-    constructor(pathFetcher, map) {
-        /**@type {PathFetcher} */
-        this.pathFetcher = pathFetcher;
+    constructor(dataFetcher, map) {
+        /**@type {DataFetcher} */
+        this.dataFetcher = dataFetcher;
         this.map = map;
         this.currentlyDrawnLines = [];
         this.currentlyOpenPopups = [];
@@ -22,7 +22,7 @@ export default class MapInteractor {
     async fetchAndDrawPath() {
         const startCoordinate = this.getCoordinatesFromMarker(this.startMarker);
         const endCoordinate = this.getCoordinatesFromMarker(this.endMarker);
-        const pathResult = await this.pathFetcher.fetchPath(startCoordinate, endCoordinate, this.blacklist);
+        const pathResult = await this.dataFetcher.fetchPath(startCoordinate, endCoordinate, this.blacklist);
         if (pathResult.pathFound) {
             this.drawPath(pathResult.path);
         }
