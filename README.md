@@ -1,21 +1,11 @@
-# RuneScape Cartography through the ages
+# OSRS Pathfinder Prototype Frontend
 
-This was developed as part of the [RuneScape Wiki](https://runescape.wiki/ "The RuneScape Wiki") maps project.
+This is a fork of https://github.com/mejrs/mejrs.github.io which features a client-side rendered Webapplication of RS3 and OSRS maps.
 
-## Contributing
+All RS3 maps and most of their data has been removed.
 
-You cna contribute by searching for old game caches
+The OSRS map has been extended with pathfinding capabilities using the Pathfinder backend.
 
-## Cloning
+# Usage
 
-You can clone the repository and use it locally. Most of the data used is located in git submodules. As such you need to initialize those as well. You can do that with:
-```text
-git clone --recurse-submodules https://github.com/mejrs/mejrs.github.io.git
-```
-
-Note that you can not simply open this in your browser - you need to set up a local HTTP server to run it.
-
-## Maptile rendering
-
-The data in this repository can be generated using [https://github.com/mejrs/rs3cache/](https://github.com/mejrs/rs3cache/ "Tools and api for reading and interpreting the RuneScape 3 game cache.").
-For more information on how the maptiles are built, see [this document](https://docs.google.com/document/d/1xv7iVBkG6eWDrXFhIYi77AVodJc0D-4Aqn0ncZXKJfw/edit# "RuneScape Wiki Maps Project - Google Docs").
+Go to the [backend project](https://github.com/OlZe/osrs_pathfinder) which includes this frontend as a git submodule and serves the files
