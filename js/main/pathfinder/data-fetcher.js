@@ -15,6 +15,7 @@ import Coordinate from "./coordinate.js";
 
 export default class DataFetcher {
     static #API_URL = "http://localhost:8100"
+    static #HEADERS = new Headers({'Content-Type': 'application/json'});
 
     /**
      * @param {Coordinate} start
@@ -29,7 +30,8 @@ export default class DataFetcher {
                 from: start,
                 to: end,
                 blacklist: blacklist
-            })
+            }),
+            headers: DataFetcher.#HEADERS
         });
         return response.json();
     }
@@ -38,7 +40,9 @@ export default class DataFetcher {
      * @returns {string[]} A list of all teleports and transports
      */
     async fetchAllTeleportsTransports() {
-        const response = await fetch(`${DataFetcher.#API_URL}/transports-teleports.json`);
+        const response = await fetch(`${DataFetcher.#API_URL}/transports-teleports.json`, {
+            headers: DataFetcher.#HEADERS
+        });
         return response.json();
     }
 }
