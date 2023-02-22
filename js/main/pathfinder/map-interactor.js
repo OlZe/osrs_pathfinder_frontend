@@ -19,11 +19,15 @@ export default class MapInteractor {
         this.currentlyOpenPopups = [];
         this.startMarker = null;
         this.endMarker = null;
+        /**@type {HTMLInputElement} */
+        this.startMarkerZValue = null;
+        /**@type {HTMLInputElement} */
+        this.endMarkerZValue = null;
     }
 
     async _fetchAndDrawPath() {
-        const startCoordinate = this._getCoordinatesFromMarker(this.startMarker);
-        const endCoordinate = this._getCoordinatesFromMarker(this.endMarker);
+        const startCoordinate = this._getCoordinatesStartMarker(this.startMarker);
+        const endCoordinate = this._getCoordinatesEndMarker(this.endMarker);
         const blacklist = this.blacklistManager.getBlacklist();
         const pathResult = await this.dataFetcher.fetchPath(startCoordinate, endCoordinate, blacklist);
         if (pathResult.pathFound) {
@@ -110,23 +114,37 @@ export default class MapInteractor {
     }
 
     /**
-     * Extracts integer coordinates out of a marker
-     * @param {*} marker The Leaflet marker object
+     * Extracts integer coordinates from the start marker
      * @returns {Coordinate}
      */
-    _getCoordinatesFromMarker(marker) {
-        let latlng = marker.getLatLng();
+    _getCoordinatesStartMarker() {
+        let latlng = this.startMarker.getLatLng();
         return new Coordinate(
             Math.floor(latlng.lng),
             Math.floor(latlng.lat),
-            0
+            this.startMarkerZValue.value
+        );
+    }
+
+    /**
+     * Extracts integer coordinates from the end marker
+     * @returns {Coordinate}
+     */
+    _getCoordinatesEndMarker() {
+        let latlng = this.endMarker.getLatLng();
+        return new Coordinate(
+            Math.floor(latlng.lng),
+            Math.floor(latlng.lat),
+            this.endMarkerZValue.value
         );
     }
 
     initMapObjects() {
         // Path from 3221,3220,0 to 3226,3220,0
         const INIT_PATH = JSON.parse(`[{"destination":{"x":3221,"y":3220,"z":0},"methodOfMovement":"start"},{"destination":{"x":3222,"y":3221,"z":0},"methodOfMovement":"walk north east"},{"destination":{"x":3223,"y":3221,"z":0},"methodOfMovement":"walk east"},{"destination":{"x":3224,"y":3221,"z":0},"methodOfMovement":"walk east"},{"destination":{"x":3225,"y":3220,"z":0},"methodOfMovement":"walk south east"},{"destination":{"x":3226,"y":3220,"z":0},"methodOfMovement":"walk east"}]`);
+        this._drawPath(INIT_PATH);
 
+        // Start Marker
         this.startMarker = L.marker([3220.5, 3221.5], {
             title: 'start point',
             alt: 'start point marker',
@@ -134,6 +152,8 @@ export default class MapInteractor {
         });
         this.startMarker.on('dragend', this._fetchAndDrawPath.bind(this));
         this.startMarker.addTo(this.map);
+
+        // End marker
         this.endMarker = L.marker([3220.5, 3226.5], {
             title: 'end point',
             alt: 'end point marker',
@@ -141,6 +161,27 @@ export default class MapInteractor {
         });
         this.endMarker.on('dragend', this._fetchAndDrawPath.bind(this));
         this.endMarker.addTo(this.map);
-        this._drawPath(INIT_PATH);
+
+        // Inputboxes for marker z/plane values
+        /** @param {String} labelText @returns {HTMLLabelElement} */
+        const makeZInput = labelText => {
+            const label = document.createElement("label");
+            label.innerText = labelText;
+            const input = document.createElement("input");
+            input.setAttribute("type", "number");
+            input.setAttribute("min", 0);
+            input.setAttribute("max", 3);
+            input.setAttribute("value", 0);
+            label.appendChild(input);
+            return label;
+        }
+
+        const form = document.createElement("form");
+        const startZInput = makeZInput("start Z");
+        const endZInput = makeZInput("end z");
+        this.startMarkerZValue = startZInput.querySelector("input");
+        this.endMarkerZValue = endZInput.querySelector("input");
+        form.append(startZInput, endZInput);
+        document.getElementById("z-value-inputs").appendChild(form);
     }
 }

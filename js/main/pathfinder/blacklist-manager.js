@@ -18,7 +18,7 @@ export default class BlacklistManager {
      */
     setBlacklist(blacklistItem, isBlacklisted) {
         const checkbox = document.getElementById(blacklistItem);
-        if(!checkbox) {
+        if (!checkbox) {
             throw `Tried to blacklist an item which doesn't exist: ${blacklistItem}`;
         }
         checkbox.checked = isBlacklisted;
@@ -28,7 +28,7 @@ export default class BlacklistManager {
      * @returns {string[]}
      */
     getBlacklist() {
-        if(!this.form) {
+        if (!this.form) {
             return [];
         }
 
@@ -46,7 +46,7 @@ export default class BlacklistManager {
         blacklist
             .map(this._convertBlacklistItemToCheckbox)
             .forEach(checkbox => form.appendChild(checkbox));
-        document.body.appendChild(form);
+        document.getElementById("blacklist").appendChild(form);
         this.form = form;
     }
 
