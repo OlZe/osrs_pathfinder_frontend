@@ -178,7 +178,7 @@ export default class MapInteractor {
 
         const form = document.createElement("form");
         const startZInput = makeZInput("start Z");
-        const endZInput = makeZInput("end z");
+        const endZInput = makeZInput("end Z");
         this.startMarkerZValue = startZInput.querySelector("input");
         this.endMarkerZValue = endZInput.querySelector("input");
         form.append(startZInput, endZInput);
