@@ -33,6 +33,9 @@ export default class MapInteractor {
         if (pathResult.pathFound) {
             this._drawPath(pathResult.path);
         }
+        else {
+            alert("Could not find path.")
+        }
     }
 
     /**
