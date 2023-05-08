@@ -21,15 +21,17 @@ export default class DataFetcher {
      * @param {Coordinate} start
      * @param {Coordinate} end
      * @param {string[]} blacklist
+     * @param {string} algorithm
      * @returns {Promise<PathResult>} path
      */
-    async fetchPath(start, end, blacklist) {
+    async fetchPath(start, end, blacklist, algorithm) {
         const response = await fetch(`${DataFetcher.#API_URL}/api/path.json`, {
             method: 'POST',
             body: JSON.stringify({
                 from: start,
                 to: end,
-                blacklist: blacklist
+                blacklist: blacklist,
+                algorithm: algorithm
             }),
             headers: DataFetcher.#HEADERS
         });

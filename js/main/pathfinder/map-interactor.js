@@ -1,3 +1,4 @@
+import AlgorithmSelector from "./algorithm-selector.js";
 import BlacklistManager from "./blacklist-manager.js";
 import Coordinate from "./coordinate.js";
 import DataFetcher from "./data-fetcher.js";
@@ -7,13 +8,16 @@ export default class MapInteractor {
     /**
      * @param {DataFetcher} dataFetcher
      * @param {BlacklistManager} blacklistManager
+     * @param {AlgorithmSelector} algorithmSelector
      * @param {*} map The Leaflet map object
      */
-    constructor(dataFetcher, blacklistManager, map) {
+    constructor(dataFetcher, blacklistManager, algorithmSelector, map) {
         /**@type {DataFetcher} */
         this.dataFetcher = dataFetcher;
         /**@type {BlacklistManager} */
         this.blacklistManager = blacklistManager;
+        /**@type {AlgorithmSelector} */
+        this.algorithmSelector = algorithmSelector;
         this.map = map;
         this.currentlyDrawnLines = [];
         this.currentlyOpenPopups = [];
@@ -29,7 +33,8 @@ export default class MapInteractor {
         const startCoordinate = this._getCoordinatesStartMarker(this.startMarker);
         const endCoordinate = this._getCoordinatesEndMarker(this.endMarker);
         const blacklist = this.blacklistManager.getBlacklist();
-        const pathResult = await this.dataFetcher.fetchPath(startCoordinate, endCoordinate, blacklist);
+        const algorithm = this.algorithmSelector.getAlgorithm();
+        const pathResult = await this.dataFetcher.fetchPath(startCoordinate, endCoordinate, blacklist, algorithm);
         if (pathResult.pathFound) {
             this._drawPath(pathResult.path);
         }
