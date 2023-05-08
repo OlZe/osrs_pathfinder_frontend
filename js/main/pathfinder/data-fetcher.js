@@ -9,7 +9,10 @@ import Coordinate from "./coordinate.js";
 /**
  * @typedef {Object} PathResult
  * @property {boolean} pathFound
- * @property {number} computeTime
+ * @property {number} totalCost
+ * @property {number} computeTimeMs
+ * @property {number} amountExpandedVertices
+ * @property {number} amountVerticesLeftInQueue
  * @property {PathResultMovement[]} path
  */
 

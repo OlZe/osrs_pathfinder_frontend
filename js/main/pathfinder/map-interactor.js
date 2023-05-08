@@ -34,9 +34,12 @@ export default class MapInteractor {
         if (pathResult.pathFound) {
             this._drawPath(pathResult.path);
         }
-        else {
-            alert("Could not find path.")
-        }
+        document.getElementById("path-info-pathFound").innerText = pathResult.pathFound;
+        document.getElementById("path-info-totalCost").innerText = pathResult.totalCost;
+        document.getElementById("path-info-computeTime").innerText = pathResult.computeTimeMs;
+        document.getElementById("path-info-amountExpandedVertices").innerText = pathResult.amountExpandedVertices;
+        document.getElementById("path-info-amountVerticesLeftInQueue").innerText = pathResult.amountVerticesLeftInQueue;
+
     }
 
     /**

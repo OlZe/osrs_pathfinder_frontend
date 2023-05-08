@@ -54,7 +54,7 @@
 </head>
 
 <body>
-	<div id="map" style="height:50%"></div>
+	<div id="map" style="height:calc(100vh - 15em)"></div>
 	<form>
 		<div id="form-top-row">
 			<span>
@@ -73,6 +73,15 @@
 					<legend>Algorithm</legend>
 				</fieldset>
 			</span>
+
+			<fieldset id="path-information">
+				<legend>Path Information</legend>
+				Path found: <span id="path-info-pathFound">n/a</span><br>
+				Total cost: <span id="path-info-totalCost">n/a</span><br>
+				Compute Time: <span id="path-info-computeTime">n/a</span> ms<br>
+				Expanded Vertices: <span id="path-info-amountExpandedVertices">n/a</span><br>
+				Vertices Left in Queue: <span id="path-info-amountVerticesLeftInQueue">n/a</span><br>
+			</fieldset>
 
 			<button type="button" id="button-fetch-draw-path">
 				Fetch and Draw Path
