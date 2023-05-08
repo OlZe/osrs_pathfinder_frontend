@@ -23,10 +23,6 @@ export default class MapInteractor {
         this.currentlyOpenPopups = [];
         this.startMarker = null;
         this.endMarker = null;
-        /**@type {HTMLInputElement} */
-        this.startMarkerZValue = null;
-        /**@type {HTMLInputElement} */
-        this.endMarkerZValue = null;
     }
 
     async _fetchAndDrawPath() {
@@ -130,7 +126,7 @@ export default class MapInteractor {
         return new Coordinate(
             Math.floor(latlng.lng),
             Math.floor(latlng.lat),
-            this.startMarkerZValue.value
+            document.getElementById("input-z-start").value
         );
     }
 
@@ -143,7 +139,7 @@ export default class MapInteractor {
         return new Coordinate(
             Math.floor(latlng.lng),
             Math.floor(latlng.lat),
-            this.endMarkerZValue.value
+            document.getElementById("input-z-end").value
         );
     }
 
@@ -169,27 +165,5 @@ export default class MapInteractor {
         });
         this.endMarker.on('dragend', this._fetchAndDrawPath.bind(this));
         this.endMarker.addTo(this.map);
-
-        // Inputboxes for marker z/plane values
-        /** @param {String} labelText @returns {HTMLLabelElement} */
-        const makeZInput = labelText => {
-            const label = document.createElement("label");
-            label.innerText = labelText;
-            const input = document.createElement("input");
-            input.setAttribute("type", "number");
-            input.setAttribute("min", 0);
-            input.setAttribute("max", 3);
-            input.setAttribute("value", 0);
-            label.appendChild(input);
-            return label;
-        }
-
-        const form = document.createElement("form");
-        const startZInput = makeZInput("start Z");
-        const endZInput = makeZInput("end Z");
-        this.startMarkerZValue = startZInput.querySelector("input");
-        this.endMarkerZValue = endZInput.querySelector("input");
-        form.append(startZInput, endZInput);
-        document.getElementById("z-value-inputs").appendChild(form);
     }
 }

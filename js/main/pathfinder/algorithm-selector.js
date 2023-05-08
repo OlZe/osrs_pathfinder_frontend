@@ -9,13 +9,7 @@ export default class AlgorithmSelector {
 
 
     initAlgorithmSelector() {
-        window["algoSelect"] = this;
-        const form = document.createElement("form");
-        const fieldset = document.createElement("fieldset");
-        const fieldsetLegend = document.createElement("legend");
-        fieldsetLegend.innerText = "Select algorithm";
-        fieldset.appendChild(fieldsetLegend);
-        form.appendChild(fieldset);
+        const htmlContainer = document.getElementById("algorithm-selector")
 
         const algorithms = {
             'dijkstra': 'Dijkstra',
@@ -35,9 +29,7 @@ export default class AlgorithmSelector {
             inputLabelElement.innerText = algoName;
 
             inputLabelElement.appendChild(inputElement);
-            fieldset.appendChild(inputLabelElement);
+            htmlContainer.appendChild(inputLabelElement);
         })
-
-        document.getElementById("algorithm-selector").appendChild(form);
     }
 }

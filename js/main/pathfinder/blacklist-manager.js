@@ -8,8 +8,6 @@ export default class BlacklistManager {
     constructor(dataFetcher) {
         /** @type {DataFetcher} */
         this.dataFetcher = dataFetcher;
-        /** @type {HTMLFormElement} */
-        this.form = null;
     }
 
     /**
@@ -28,11 +26,7 @@ export default class BlacklistManager {
      * @returns {string[]}
      */
     getBlacklist() {
-        if (!this.form) {
-            return [];
-        }
-
-        const checkboxes = Array.from(this.form.querySelectorAll("input").values());
+        const checkboxes = Array.from(document.querySelectorAll("#blacklist input").values());
         return checkboxes
             .filter(checkbox => checkbox.checked)
             .map(checkbox => checkbox.id);
@@ -42,12 +36,10 @@ export default class BlacklistManager {
     async initBlacklist() {
         this.checkboxes = [];
         const blacklist = await this.dataFetcher.fetchAllTeleportsTransports();
-        const form = document.createElement("form");
+        const htmlContainer = document.getElementById("blacklist");
         blacklist
             .map(this._convertBlacklistItemToCheckbox)
-            .forEach(checkbox => form.appendChild(checkbox));
-        document.getElementById("blacklist").appendChild(form);
-        this.form = form;
+            .forEach(checkbox => htmlContainer.appendChild(checkbox));
     }
 
     /**
