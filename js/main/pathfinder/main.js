@@ -20,17 +20,4 @@ await blacklistManager.initBlacklist();
 const mapInteractor = new MapInteractor(dataFetcher, blacklistManager, algorithmSelector, runescape_map);
 mapInteractor.initMapObjects();
 
-
-window.debug = {
-    dataFetcher,
-    blacklistManager,
-    mapInteractor,
-    Coordinate,
-    getAndDrawPath: async (start, end) => {
-        const result = await dataFetcher.fetchPath(start, end, blacklistManager.getBlacklist());
-        if(result.pathFound) {
-            mapInteractor._drawPath(result.path);
-        }
-        console.log(result);
-    }
-};
+document.getElementById("button-fetch-draw-path").onclick = () => { mapInteractor._fetchAndDrawPath(); }

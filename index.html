@@ -33,27 +33,52 @@
 
 	<script type="module" src="js/main/pathfinder/main.js"></script>
 
+	<style>
+		#z-value-inputs,
+		#algorithm-selector {
+			display: inline-flex;
+			flex-flow: column nowrap;
+		}
+
+		#z-value-inputs input {
+			width: 3em
+		}
+
+		#form-top-row {
+			display: flex;
+			flex-flow: row wrap;
+			justify-content: space-between;
+		}
+	</style>
+
 </head>
 
 <body>
 	<div id="map" style="height:50%"></div>
 	<form>
-		<fieldset id="z-value-inputs">
-			<legend>Plane of markers</legend>
-			<label>
-				Start Z
-				<input id="input-z-start" type="number" min="0" max="3" value="0">
-			</label>
-			<label>
-				End Z
-				<input id="input-z-end" type="number" min="0" max="3" value="0">
-			</label>
-		</fieldset>
+		<div id="form-top-row">
+			<span>
+				<fieldset id="z-value-inputs">
+					<legend>Plane of markers</legend>
+					<label>
+						Start Z
+						<input id="input-z-start" type="number" min="0" max="3" value="0">
+					</label>
+					<label>
+						End Z
+						<input id="input-z-end" type="number" min="0" max="3" value="0">
+					</label>
+				</fieldset>
+				<fieldset id="algorithm-selector">
+					<legend>Algorithm</legend>
+				</fieldset>
+			</span>
 
-		<fieldset id="algorithm-selector">
-			<legend>Algorithm</legend>
-		</fieldset>
-		
+			<button type="button" id="button-fetch-draw-path">
+				Fetch and Draw Path
+			</button>
+		</div>
+
 		<fieldset id="blacklist">
 			<legend>Blacklist</legend>
 		</fieldset>

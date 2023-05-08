@@ -26,9 +26,9 @@ export default class AlgorithmSelector {
                 inputElement.setAttribute("checked", true);
             }
             const inputLabelElement = document.createElement("label");
-            inputLabelElement.innerText = algoName;
-
+            
             inputLabelElement.appendChild(inputElement);
+            inputLabelElement.appendChild(document.createTextNode(algoName));
             htmlContainer.appendChild(inputLabelElement);
         })
     }
