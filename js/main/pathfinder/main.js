@@ -9,13 +9,13 @@ if (!L || !runescape_map) {
 }
 
 
-const algorithmSelector = new AlgorithmSelector();
-algorithmSelector.initAlgorithmSelector();
-
 const dataFetcher = new DataFetcher();
+const algorithmSelector = new AlgorithmSelector(dataFetcher);
+await algorithmSelector.initAlgorithmSelector();
 
 const blacklistManager = new BlacklistManager(dataFetcher);
 await blacklistManager.initBlacklist();
+
 
 const mapInteractor = new MapInteractor(dataFetcher, blacklistManager, algorithmSelector, runescape_map);
 mapInteractor.initMapObjects();

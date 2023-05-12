@@ -18,7 +18,7 @@ import Coordinate from "./coordinate.js";
  */
 
 export default class DataFetcher {
-    static #API_URL = "http://localhost:8080"
+    static #API_URL = "http://localhost:8080/api"
     static #HEADERS = new Headers({'Content-Type': 'application/json'});
 
     /**
@@ -29,7 +29,7 @@ export default class DataFetcher {
      * @returns {Promise<PathResult>} path
      */
     async fetchPath(start, end, blacklist, algorithm) {
-        const response = await fetch(`${DataFetcher.#API_URL}/api/path.json`, {
+        const response = await fetch(`${DataFetcher.#API_URL}/path.json`, {
             method: 'POST',
             body: JSON.stringify({
                 from: start,
@@ -46,7 +46,17 @@ export default class DataFetcher {
      * @returns {string[]} A list of all teleports and transports
      */
     async fetchAllTeleportsTransports() {
-        const response = await fetch(`${DataFetcher.#API_URL}/api/transports-teleports.json`, {
+        const response = await fetch(`${DataFetcher.#API_URL}/transports-teleports.json`, {
+            headers: DataFetcher.#HEADERS
+        });
+        return response.json();
+    }
+
+    /**
+     * @returns {string[]} A list of all available algorithms
+     */
+    async fetchAllAlgorithms() {
+        const response = await fetch(`${DataFetcher.#API_URL}/algorithms.json`, {
             headers: DataFetcher.#HEADERS
         });
         return response.json();
