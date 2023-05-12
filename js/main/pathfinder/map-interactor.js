@@ -30,16 +30,19 @@ export default class MapInteractor {
         const endCoordinate = this._getCoordinatesEndMarker(this.endMarker);
         const blacklist = this.blacklistManager.getBlacklist();
         const algorithm = this.algorithmSelector.getAlgorithm();
+        document.getElementById("path-info-loading").innerHTML = "<strong>true</true>";
         const pathResult = await this.dataFetcher.fetchPath(startCoordinate, endCoordinate, blacklist, algorithm);
         if (pathResult.pathFound) {
             this._drawPath(pathResult.path);
         }
+        document.getElementById("path-info-loading").innerText = "done";
         document.getElementById("path-info-pathFound").innerText = pathResult.pathFound;
         document.getElementById("path-info-totalCost").innerText = pathResult.totalCost;
+        document.getElementById("path-info-amountMovementSteps").innerText = pathResult.path?.length || 0;
         document.getElementById("path-info-computeTime").innerText = pathResult.computeTimeMs;
         document.getElementById("path-info-amountExpandedVertices").innerText = pathResult.amountExpandedVertices;
         document.getElementById("path-info-amountVerticesLeftInQueue").innerText = pathResult.amountVerticesLeftInQueue;
-
+        document.getElementById("path-info-reasonForNoPathFound").innerText = pathResult.reasonForNoPathFound;
     }
 
     /**

@@ -13,6 +13,7 @@ import Coordinate from "./coordinate.js";
  * @property {number} computeTimeMs
  * @property {number} amountExpandedVertices
  * @property {number} amountVerticesLeftInQueue
+ * @property {string} reasonForNoPathFound
  * @property {PathResultMovement[]} path
  */
 

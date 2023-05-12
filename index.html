@@ -54,7 +54,7 @@
 </head>
 
 <body>
-	<div id="map" style="height:calc(100vh - 15em)"></div>
+	<div id="map" style="height:calc(100vh - 18em)"></div>
 	<form>
 		<div id="form-top-row">
 			<span>
@@ -76,15 +76,19 @@
 
 			<fieldset id="path-information">
 				<legend>Path Information</legend>
-				Path found: <span id="path-info-pathFound">n/a</span><br>
-				Total cost: <span id="path-info-totalCost">n/a</span><br>
-				Compute Time: <span id="path-info-computeTime">n/a</span> ms<br>
-				Expanded Vertices: <span id="path-info-amountExpandedVertices">n/a</span><br>
-				Vertices Left in Queue: <span id="path-info-amountVerticesLeftInQueue">n/a</span><br>
+				Loading: <span id="path-info-loading">-</span><br>
+				Path found: <span id="path-info-pathFound">-</span><br>
+				Total cost: <span id="path-info-totalCost">-</span><br>
+				Amount of steps in path: <span id="path-info-amountMovementSteps">-</span><br>
+				Compute time: <span id="path-info-computeTime">-</span> ms<br>
+				Expanded vertices: <span id="path-info-amountExpandedVertices">-</span><br>
+				Vertices left in queue: <span id="path-info-amountVerticesLeftInQueue">-</span><br>
+				Reason for path not found: <strong><span id="path-info-reasonForNoPathFound"></span></strong><br>
 			</fieldset>
 
 			<button type="button" id="button-fetch-draw-path">
-				Fetch and Draw Path
+				Fetch and<br>
+				Draw Path
 			</button>
 		</div>
 
