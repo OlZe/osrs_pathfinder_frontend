@@ -25,6 +25,8 @@ export default class AlgorithmSelector {
             throw "Could not fetch algorithms";
         }
 
+        algorithms.sort();
+
         const htmlContainer = document.getElementById("algorithm-selector")
         algorithms.forEach((algorithm, index) => {
             const inputElement = document.createElement("input");
